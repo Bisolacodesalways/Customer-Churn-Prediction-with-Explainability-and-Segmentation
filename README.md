@@ -66,9 +66,9 @@
 
 ## Churned customers tended to:
 
-    Raise more frequent support tickets
+## Raise more frequent support tickets
 
-    Show declining satisfaction and engagement prior to churn
+## Show declining satisfaction and engagement prior to churn
 
 ## This supported the hypothesis that churn is often preceded by friction signals, not just usage decline.
 
@@ -76,18 +76,18 @@
 
 ## Clear behavioral differences were observed between individual customers and small business customers:
 
-    Small business customers generally had higher baseline usage and longer tenure
+## Small business customers generally had higher baseline usage and longer tenure
 
-    Individual customers showed sharper drops in engagement prior to churn
+## Individual customers showed sharper drops in engagement prior to churn
 
 ## Segment-specific analysis justified performing segment-level explainability using SHAP.
 
 ## Correlation & Feature Relationships
 
-Strong correlations were observed between:
+## Strong correlations were observed between:
 
-    Usage intensity and retention
+## Usage intensity and retention
 
-    Payment stability and churn likelihood
+## Payment stability and churn likelihood
 
 ## Multicollinearity was assessed and managed through feature selection and regularization, reinforcing the suitability of logistic regression as a baseline model.
