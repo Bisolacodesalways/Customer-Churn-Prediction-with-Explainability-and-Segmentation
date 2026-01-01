@@ -46,21 +46,21 @@
 
 ### Customers who eventually churned showed:
 
-    Lower and more volatile product usage
+### Lower and more volatile product usage
 
-    Reduced engagement frequency over time
+### Reduced engagement frequency over time
 
-    Higher variance in session activity compared to retained customers
+### Higher variance in session activity compared to retained customers
 
 ### Usage-based features demonstrated clear separation between churned and retained customers when analyzed in deciles and distributions.
 
 ## Billing & Payment Insights
 
-    Payment irregularities (e.g. late payments, failed transactions) were strongly associated with churn risk.
+### Payment irregularities (e.g. late payments, failed transactions) were strongly associated with churn risk.
 
-    Customers with repeated payment issues exhibited significantly higher churn propensity than those with consistent billing behavior.
+### Customers with repeated payment issues exhibited significantly higher churn propensity than those with consistent billing behavior.
 
-    These findings motivated the inclusion of aggregated payment-history features in the model.
+### These findings motivated the inclusion of aggregated payment-history features in the model.
 
 ## Customer Support & Engagement
 
