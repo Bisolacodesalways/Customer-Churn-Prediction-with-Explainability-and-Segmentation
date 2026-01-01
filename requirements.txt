@@ -59,3 +59,11 @@ umap-learn==0.5.9.post2
 urllib3==2.6.1
 watchdog==6.0.0
 xgboost==3.1.2
+streamlit
+pandas
+numpy
+scikit-learn
+shap
+matplotlib
+joblib
+
