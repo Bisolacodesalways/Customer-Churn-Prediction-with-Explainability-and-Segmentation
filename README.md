@@ -28,11 +28,11 @@
 
 #### Customer engagement & support interactions
 
-### Contract and plan characteristics
+#### Contract and plan characteristics
 
-### Customer segments (e.g. individual vs small business)
+#### Customer segments (e.g. individual vs small business)
 
-### Features were engineered and validated to ensure consistency, interpretability, and suitability for explainable modeling.
+#### Features were engineered and validated to ensure consistency, interpretability, and suitability for explainable modeling.
 
 ## Exploratory Data Analysis (EDA)
 ### Target Variable Analysis
@@ -145,7 +145,7 @@
 
 ## Risk Scoring Logic (Business-Aligned)
 
-### Instead of using a naïve 0.5 probability threshold, churn risk is defined using percentile-based scoring:
+#### Instead of using a naïve 0.5 probability threshold, churn risk is defined using percentile-based scoring:
 
 #### High risk: Top 5% of predicted churn probabilities
 
@@ -153,13 +153,13 @@
 
 #### Low risk: Remaining customers
 
-### This approach reflects real-world operational constraints where teams can only intervene on a limited subset of customers.
+#### This approach reflects real-world operational constraints where teams can only intervene on a limited subset of customers.
 
 ## Interactive Dashboard (Streamlit)
 
-### An interactive Streamlit dashboard was built to operationalize the model.
+#### An interactive Streamlit dashboard was built to operationalize the model.
 
-### Dashboard Capabilities
+#### Dashboard Capabilities:
 
 #### Customer-level churn probability
 
@@ -171,13 +171,13 @@
 
 #### Dynamic customer and segment selection
 
-### The dashboard is designed for both technical and non-technical users, enabling data-driven retention decisions.
+#### The dashboard is designed for both technical and non-technical users, enabling data-driven retention decisions.
 
 ## How to Run the App Locally
 #### pip install -r requirements.txt
 #### streamlit run dashboard/app.py
 
-### Then open:
+#### Then open:
 http://localhost:8501
 
 ## Key Insights
