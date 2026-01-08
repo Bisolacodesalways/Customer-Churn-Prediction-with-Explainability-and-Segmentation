@@ -1,4 +1,4 @@
-# Customer-Churn-Prediction-with-Explainability-and-Segmentation
+# Customer Churn Prediction with Explainability and Segmentation
 
 ## Overview
 #### Customer churn is a critical challenge for subscription-based businesses, utilities, and service providers. This project demonstrates an end-to-end applied machine learning solution to predict customer churn, explain model decisions, and translate predictions into business-actionable insights using an interactive dashboard.
