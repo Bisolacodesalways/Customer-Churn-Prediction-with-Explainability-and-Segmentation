@@ -43,7 +43,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 
 st.set_page_config(page_title="Customer Churn Prediction", layout="wide")
 
-st.title("📉 Customer Churn Prediction Dashboard")
+st.title(" Customer Churn Prediction Dashboard")
 st.markdown(
     "This dashboard predicts customer churn risk and explains **why** a customer is likely to churn using SHAP."
 )
@@ -96,7 +96,7 @@ pretty_feature_names = prettify_feature_names(feature_names)
 
 # Sidebar – Segmentation
 
-st.sidebar.header("📊 Segmentation")
+st.sidebar.header(" Segmentation")
 
 segment_option = st.sidebar.selectbox(
     "Select customer segment",
@@ -162,9 +162,8 @@ base_rate = df["churn"].mean()
 lift = churn_proba / base_rate
 
 st.caption(
-    f"📈 Relative risk vs average customer: **{lift:.1f}×**"
+    f" Relative risk vs average customer: **{lift:.1f}×**"
 )
-
 
 
 # =========================
@@ -184,7 +183,7 @@ shap.plots.waterfall(shap_values_customer, show=False)
 st.pyplot(fig)
 
 # Segmented Customer Insights
-st.subheader(f"📈 Key Churn Drivers for {segment_option} Customers")
+st.subheader(f" Key Churn Drivers for {segment_option} Customers")
 
 sample_df = filtered_df.sample(
     min(300, len(filtered_df)),
