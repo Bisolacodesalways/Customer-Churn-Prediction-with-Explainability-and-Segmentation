@@ -116,20 +116,33 @@ def load_data():
 
 
 # ============================================================================
-# SHAP EXPLAINER - Direct approach without pickle
+# SHAP EXPLAINER - Robust version with auto-detection
 # ============================================================================
+
+def get_model_final_estimator(pipeline):
+    """
+    Extract the final estimator from a sklearn pipeline.
+    Handles various pipeline structures.
+    """
+    # Check pipeline steps
+    if hasattr(pipeline, 'steps'):
+        # Get the last step (usually the classifier/regressor)
+        last_step_name, last_step = pipeline.steps[-1]
+        return last_step
+    else:
+        return pipeline
+
 
 @st.cache_resource
 def create_shap_explainer(_model, _sample_data):
     """
-    Create SHAP explainer directly from the model.
-    This avoids pickle compatibility issues entirely.
+    Create SHAP explainer with multiple fallback strategies.
     """
     try:
         import shap
         
-        # Get the classifier from the pipeline
-        classifier = _model.named_steps["classifier"]
+        # Get the final estimator from pipeline
+        estimator = get_model_final_estimator(_model)
         
         # Transform sample data
         X_sample = _model.named_steps["preprocessor"].transform(_sample_data)
@@ -138,18 +151,45 @@ def create_shap_explainer(_model, _sample_data):
         if hasattr(X_sample, "toarray"):
             X_sample = X_sample.toarray()
         
-        # Create a simple linear explainer for logistic regression
-        # This is more stable across environments
-        explainer = shap.LinearExplainer(
-            classifier,
-            X_sample,
-            feature_perturbation="interventional"
-        )
-        
-        return explainer, X_sample
+        # Strategy 1: Try LinearExplainer (best for logistic regression)
+        try:
+            explainer = shap.LinearExplainer(
+                estimator,
+                X_sample,
+                feature_perturbation="interventional"
+            )
+            st.success("✅ Created LinearExplainer for fast, accurate explanations")
+            return explainer, X_sample
+        except Exception as e1:
+            # Strategy 2: Try KernelExplainer (works for any model, slower)
+            try:
+                def model_predict(X):
+                    """Wrapper for model prediction."""
+                    proba = estimator.predict_proba(X)
+                    # Return probability of positive class
+                    return proba[:, 1] if len(proba.shape) > 1 and proba.shape[1] > 1 else proba
+                
+                explainer = shap.KernelExplainer(
+                    model_predict,
+                    X_sample[:50]  # Use smaller background for speed
+                )
+                st.success("✅ Created KernelExplainer (slower but works for all models)")
+                return explainer, X_sample
+            except Exception as e2:
+                # Strategy 3: Try Explainer (auto-detects best method)
+                try:
+                    explainer = shap.Explainer(
+                        estimator.predict_proba,
+                        X_sample[:50]
+                    )
+                    st.success("✅ Created auto-detected explainer")
+                    return explainer, X_sample
+                except Exception as e3:
+                    st.warning(f"⚠️ Could not create SHAP explainer. Errors: {e1}, {e2}, {e3}")
+                    return None, None
         
     except Exception as e:
-        st.warning(f"⚠️ Could not create SHAP explainer: {str(e)}")
+        st.warning(f"⚠️ SHAP initialization failed: {str(e)}")
         st.info("Dashboard will work without SHAP visualizations.")
         return None, None
 
@@ -208,7 +248,10 @@ with st.spinner("Initializing explainability engine..."):
     sample_df = df.sample(sample_size, random_state=42).drop(columns=["churn"])
     explainer, background_data = create_shap_explainer(model, sample_df)
 
-st.success("✅ Model and data loaded successfully!")
+if explainer is None:
+    st.info("ℹ️ SHAP visualizations unavailable. Predictions will still work perfectly.")
+else:
+    st.success("✅ Model, data, and explainer loaded successfully!")
 
 
 # ============================================================================
@@ -301,20 +344,34 @@ if explainer is not None:
         if hasattr(X_customer, "toarray"):
             X_customer = X_customer.toarray()
         
-        # Calculate SHAP values
-        shap_values = explainer.shap_values(X_customer)
-        
-        # For binary classification, get the positive class (churn = 1)
-        if isinstance(shap_values, list):
-            shap_values = shap_values[1]
-        
-        # Create explanation object
-        explanation = shap.Explanation(
-            values=shap_values[0],
-            base_values=explainer.expected_value if not isinstance(explainer.expected_value, list) else explainer.expected_value[1],
-            data=X_customer[0],
-            feature_names=pretty_feature_names
-        )
+        # Calculate SHAP values - try different methods
+        try:
+            # Method 1: Try shap_values (for LinearExplainer/KernelExplainer)
+            shap_values = explainer.shap_values(X_customer)
+            
+            # Handle different return formats
+            if isinstance(shap_values, list):
+                shap_values = shap_values[1]  # Binary classification, get positive class
+            
+            # Get expected value
+            if isinstance(explainer.expected_value, (list, np.ndarray)):
+                expected_value = explainer.expected_value[1] if len(explainer.expected_value) > 1 else explainer.expected_value[0]
+            else:
+                expected_value = explainer.expected_value
+            
+            # Create explanation object
+            explanation = shap.Explanation(
+                values=shap_values[0] if len(shap_values.shape) > 1 else shap_values,
+                base_values=expected_value,
+                data=X_customer[0],
+                feature_names=pretty_feature_names
+            )
+            
+        except AttributeError:
+            # Method 2: Modern API (for newer Explainer)
+            shap_result = explainer(X_customer)
+            explanation = shap_result[0]
+            explanation.feature_names = pretty_feature_names
         
         # Create waterfall plot
         fig, ax = plt.subplots(figsize=(10, 6))
@@ -329,7 +386,7 @@ if explainer is not None:
         
     except Exception as e:
         st.error(f"❌ Error generating SHAP waterfall plot: {str(e)}")
-        st.info("The prediction is still valid, but visualization failed.")
+        st.info("The prediction is still valid. Try selecting a different customer.")
 else:
     st.info("ℹ️ SHAP visualizations are not available, but predictions are working correctly.")
 
@@ -345,7 +402,7 @@ if explainer is not None:
         import shap
         
         # Sample customers from segment
-        sample_size = min(300, len(filtered_df))
+        sample_size = min(200, len(filtered_df))
         sample_df = filtered_df.sample(sample_size, random_state=42).drop(columns=["churn"])
         
         # Transform data
@@ -355,14 +412,21 @@ if explainer is not None:
         if hasattr(X_segment, "toarray"):
             X_segment = X_segment.toarray()
         
-        # Calculate SHAP values
-        shap_values = explainer.shap_values(X_segment)
+        # Calculate SHAP values with progress indicator
+        with st.spinner(f"Analyzing {sample_size} customers... (this may take 30-60 seconds)"):
+            try:
+                shap_values = explainer.shap_values(X_segment)
+                
+                # Handle different return formats
+                if isinstance(shap_values, list):
+                    shap_values = shap_values[1]  # Binary classification
+                
+            except AttributeError:
+                # Modern API
+                shap_result = explainer(X_segment)
+                shap_values = shap_result.values
         
-        # For binary classification, get the positive class
-        if isinstance(shap_values, list):
-            shap_values = shap_values[1]
-        
-        # Create beeswarm plot
+        # Create summary plot
         fig, ax = plt.subplots(figsize=(10, 8))
         shap.summary_plot(
             shap_values,
@@ -376,11 +440,13 @@ if explainer is not None:
         
         st.caption(
             f"📊 This plot shows the most important features for predicting churn "
-            f"across {sample_size} {segment_option.lower()} customers."
+            f"across {sample_size} {segment_option.lower()} customers. "
+            f"Red indicates high feature values, blue indicates low values."
         )
         
     except Exception as e:
         st.error(f"❌ Error generating segment insights: {str(e)}")
+        st.info("Try reducing the sample size or selecting a different segment.")
 else:
     st.info("ℹ️ SHAP segment analysis not available.")
 
