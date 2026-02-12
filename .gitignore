@@ -19,3 +19,4 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+models/shap_explainer.pkl
