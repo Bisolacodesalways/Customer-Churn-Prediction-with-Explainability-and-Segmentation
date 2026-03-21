@@ -113,7 +113,7 @@
 
 #### Strong performance on ROC-AUC
 
-#### table behavior on imbalanced data
+#### Table behavior on imbalanced data
 
 #### Superior interpretability for stakeholders
 
@@ -173,12 +173,9 @@
 
 #### The dashboard is designed for both technical and non-technical users, enabling data-driven retention decisions.
 
-## How to Run the App Locally
-#### pip install -r requirements.txt
-#### streamlit run dashboard/app.py
+## How to Run the App 
+Click on this link: https://customer-churn-prediction-with-explainability-and-segmentation.streamlit.app
 
-#### Then open:
-http://localhost:8501
 
 ## Key Insights
 #### Churn is best treated as a ranking and prioritization problem
